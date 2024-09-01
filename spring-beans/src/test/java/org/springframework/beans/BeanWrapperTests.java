@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.core.io.UrlResource;
 import org.springframework.tests.sample.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,7 +151,7 @@ public class BeanWrapperTests extends AbstractPropertyAccessorTests {
 	}
 
 	@Test
-	public void propertyDescriptors() {
+	public void propertyDescriptors() throws Exception {
 		TestBean target = new TestBean();
 		target.setSpouse(new TestBean());
 		BeanWrapper accessor = createAccessor(target);
@@ -162,6 +163,22 @@ public class BeanWrapperTests extends AbstractPropertyAccessorTests {
 		assertThat(accessor.getPropertyValue("spouse.name")).isEqualTo("b");
 		assertThat(accessor.getPropertyDescriptor("name").getPropertyType()).isEqualTo(String.class);
 		assertThat(accessor.getPropertyDescriptor("spouse.name").getPropertyType()).isEqualTo(String.class);
+
+		accessor = createAccessor(new UrlResource("https://spring.io"));
+
+		assertThat(accessor.isReadableProperty("class.package")).isFalse();
+		assertThat(accessor.isReadableProperty("class.module")).isFalse();
+		assertThat(accessor.isReadableProperty("class.classLoader")).isFalse();
+		assertThat(accessor.isReadableProperty("class.name")).isTrue();
+		assertThat(accessor.isReadableProperty("class.simpleName")).isTrue();
+		assertThat(accessor.isReadableProperty("URL.protocol")).isTrue();
+		assertThat(accessor.isReadableProperty("URL.host")).isTrue();
+		assertThat(accessor.isReadableProperty("URL.port")).isTrue();
+		assertThat(accessor.isReadableProperty("URL.file")).isTrue();
+		assertThat(accessor.isReadableProperty("URL.content")).isFalse();
+		assertThat(accessor.isReadableProperty("inputStream")).isFalse();
+		assertThat(accessor.isReadableProperty("filename")).isTrue();
+		assertThat(accessor.isReadableProperty("description")).isTrue();
 	}
 
 	@Test
